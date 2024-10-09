@@ -1,0 +1,46 @@
+How to regenerate
+
+This CIFAR-10 repository is mainly for comparison purpose.
+If you get stuck with ImageNet64 code, then looking at this code might help you.
+
+1. Download (or obtain) the following files
+- Pretrained diffusion model: locate it in args.teacher_model_path
+- Data: locate it in args.data_dir. You can find it in the data folder.
+- Reference statistics: statistics for computing FID. locate it in args.ref_path
+(This reference stats could vary if your task is music generation or inverse problems)
+
+2. Install docker to your own server
+
+2-1. Type "docker pull dongjun57/ctm-docker:latest" to download docker image in docker hub
+
+2-2. Create a container by typing in the command: "docker run --gpus all -itd -v /etc/localtime:/etc/localtime:ro -v /dev/shm:/dev/shm -v /home/dongjun/:/home/dongjun/ -v /data/image/ImageNet/train:/data/image/ImageNet/train -v /data2/dongjun/:/data2/dongjun/ --name ctm-docker a47aa51fbcbb"
+The commands could vary by your server environment.
+
+2-3. Go to the container by "docker exec -it ctm-cifar10-best bash"
+
+2-4. Go to the virtual environment by "conda activate ctm"
+
+3. Running commands
+
+3-1. CIFAR10 Training
+For CTM+DSM training, run commands/cond_CTM+DSM_command.sh
+  - I recommend at least run CTM+DSM for 10~50k iterations
+For CTM+DSM+GAN training, run commands/cond_CTM+DSM+GAN_command.sh
+  - I recommend at least run CTM+DSM+GAN for >=30k iterations
+
+3-2. Sampling - I have not made a shell script. You need to make your own shell script for sampling.
+Please see commands/sampling_commands.sh for detailed sampling commands.
+
+3-3. Evaluation
+Run python fid_npzs.py --ref=/home/acf15618av/EighthArticleExperimentalResults/CIFAR10/author_ckpt/cifar10-32x32.npz --num_samples=50000 --batch_size=500 --device=cuda:0 --images=/groups/gce50978/user/dongjun/EighthArticleExperimentalResults/CIFAR10/GAN/uncond/GAN_bs_528_ema_0.9999_diff_aug/ctm_exact_sampler_1_steps_034000_itrs_0.999_ema_
+  - The --ref argument is the reference path and the --images argument is the folder of your samples (>=50k samples for correct evaluation)
+
+4. In CIFAR-10, luckily, you don't need Flash Attention and you can run it on ABCI V100!
+
+5. Notes
+
+5-1. If you apply the code with another dataset, you need to manually switch the data_name into your data name.
+I'm not understanding the mechanism of args,, but you should manually modify the data_name in cm_train.py or image_sample.py
+
+5-2. I intentionally remain code/cmd shell files that contains all commands that I used before.
+If you have trouble with running the code, it could be better to refer that bunch of command lines with your own environment.
